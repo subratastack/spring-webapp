@@ -2,6 +2,7 @@ package com.subrata_education.spring_webapp.domain;
 
 import jakarta.persistence.*;
 
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
@@ -18,6 +19,17 @@ public class Book {
     @JoinTable(name = "author_book", joinColumns = @JoinColumn(name = "book_id"),
     inverseJoinColumns = @JoinColumn(name = "author_id"))
     private Set<Author> authors;
+
+    @ManyToOne
+    private Publisher publisher;
+
+    public Publisher getPublisher() {
+        return publisher;
+    }
+
+    public void setPublisher(Publisher publisher) {
+        this.publisher = publisher;
+    }
 
     public Set<Author> getAuthors() {
         return authors;
@@ -56,12 +68,12 @@ public class Book {
         if (this == object) return true;
         if (!(object instanceof Book book)) return false;
 
-        return Objects.equals(getId(), book.getId());
+        return Objects.equals(getTitle(), book.getTitle());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(getId());
+        return Objects.hashCode(getTitle());
     }
 
     @Override
@@ -72,5 +84,9 @@ public class Book {
                 ", isbn='" + isbn + '\'' +
                 ", authors=" + authors +
                 '}';
+    }
+
+    {
+        authors = new HashSet<>();
     }
 }

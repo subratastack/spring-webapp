@@ -2,6 +2,7 @@ package com.subrata_education.spring_webapp.domain;
 
 import jakarta.persistence.*;
 
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
@@ -54,12 +55,12 @@ public class Author {
         if (this == object) return true;
         if (!(object instanceof Author author)) return false;
 
-        return Objects.equals(getId(), author.getId());
+        return Objects.equals(getFirstName(), author.getFirstName());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(getId());
+        return Objects.hashCode(getFirstName());
     }
 
     @Override
@@ -70,5 +71,9 @@ public class Author {
                 ", lastNme='" + lastNme + '\'' +
                 ", books=" + books +
                 '}';
+    }
+
+    {
+        books = new HashSet<>();
     }
 }
