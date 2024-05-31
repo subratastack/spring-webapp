@@ -1,14 +1,20 @@
 package com.subrata_education.spring_webapp.mvc.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.subrata_education.spring_webapp.mvc.model.Beer;
 import com.subrata_education.spring_webapp.mvc.services.BeerService;
 import com.subrata_education.spring_webapp.mvc.services.BeerServiceImpl;
+import org.apache.coyote.BadRequestException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.client.HttpClientErrorException;
 
 import java.util.UUID;
 
@@ -24,10 +30,18 @@ class BeerControllerTest {
     @Autowired
     MockMvc mockMvc;
 
+    @Autowired
+    ObjectMapper objectMapper;
+
     @MockBean
     BeerService beerService;
 
-    BeerServiceImpl beerServiceImpl = new BeerServiceImpl();
+    BeerServiceImpl beerServiceImpl;
+
+    @BeforeEach
+    void setUp() {
+        beerServiceImpl  = new BeerServiceImpl();
+    }
 
     @Test
     void getBeerById() throws Exception {
@@ -48,5 +62,17 @@ class BeerControllerTest {
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id", is(testBeer.getId().toString())))
                 .andExpect(jsonPath("$.beerName", is(testBeer.getBeerName())));
+    }
+
+    @Test
+    void testCreateNewBeer() throws JsonProcessingException {
+        Beer beer = beerServiceImpl.getAllBeers().getFirst();
+    }
+
+    @Test
+    void testGetBeerByIdNotFound() throws Exception {
+        given(beerService.getBeerById(any(UUID.class))).willThrow(NotFoundException.class);
+        mockMvc.perform(get("/api/v1/beer/" + UUID.randomUUID()))
+                .andExpect(status().isNotFound());
     }
 }
