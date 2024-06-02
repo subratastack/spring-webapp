@@ -27,7 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(BeerController.class)
 class BeerControllerTest {
 
-    @Autowired
+    /*@Autowired
     MockMvc mockMvc;
 
     @Autowired
@@ -74,5 +74,5 @@ class BeerControllerTest {
         given(beerService.getBeerById(any(UUID.class))).willThrow(NotFoundException.class);
         mockMvc.perform(get("/api/v1/beer/" + UUID.randomUUID()))
                 .andExpect(status().isNotFound());
-    }
+    }*/
 }

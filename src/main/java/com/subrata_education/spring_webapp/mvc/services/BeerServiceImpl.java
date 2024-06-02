@@ -1,60 +1,68 @@
 package com.subrata_education.spring_webapp.mvc.services;
 
-import com.subrata_education.spring_webapp.mvc.model.Beer;
-import com.subrata_education.spring_webapp.mvc.model.BeerStyle;
+import com.subrata_education.spring_webapp.mvc.dto.BeerDTO;
+import com.subrata_education.spring_webapp.mvc.mappers.BeerMapper;
+import com.subrata_education.spring_webapp.mvc.repositories.BeerRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Service
+@RequiredArgsConstructor
 public class BeerServiceImpl implements BeerService {
 
-    private Map<UUID, Beer> beerMap;
+    private final BeerRepository beerRepository;
+    private final BeerMapper beerMapper;
 
-    public BeerServiceImpl() {
-        beerMap = new HashMap<>();
 
-        Beer b1 = Beer.builder()
-                .id(UUID.randomUUID())
-                .beerName("Beer 1")
-                .beerStyle(BeerStyle.LAGER)
-                .price(new BigDecimal(300))
-                .createdDate(LocalDateTime.now())
-                .updateDate(LocalDateTime.now())
-                .build();
-
-        Beer b2 = Beer.builder()
-                .id(UUID.randomUUID())
-                .beerName("Beer 2")
-                .beerStyle(BeerStyle.PALE_ALE)
-                .price(new BigDecimal(200))
-                .createdDate(LocalDateTime.now())
-                .updateDate(LocalDateTime.now())
-                .build();
-
-        Beer b3 = Beer.builder()
-                .id(UUID.randomUUID())
-                .beerName("Beer 3")
-                .beerStyle(BeerStyle.WHEAT)
-                .price(new BigDecimal(400))
-                .createdDate(LocalDateTime.now())
-                .updateDate(LocalDateTime.now())
-                .build();
-
-        beerMap.put(b1.getId(), b1);
-        beerMap.put(b2.getId(), b2);
-        beerMap.put(b3.getId(), b3);
+    @Override
+    public List<BeerDTO> getAllBeers() {
+        return beerRepository.findAll().stream()
+                .map(beerMapper::beerToBeerDto)
+                .toList();
     }
 
     @Override
-    public List<Beer> getAllBeers() {
-        return new ArrayList<>(beerMap.values());
+    public Optional<BeerDTO> getBeerById(UUID id) {
+        return Optional.ofNullable(beerMapper.beerToBeerDto(beerRepository.findById(id).orElse(null)));
     }
 
+
     @Override
-    public Beer getBeerById(UUID id) {
-        return beerMap.get(id);
+    public BeerDTO saveNewBeer(BeerDTO dto) {
+        return beerMapper.beerToBeerDto(beerRepository.save(beerMapper.beerDtoToBeer(dto)));
+    }
+
+
+    @Override
+    public Optional<BeerDTO> updateBeerById(UUID id, BeerDTO beer) {
+
+        AtomicReference<Optional<BeerDTO>> atomicReference = new AtomicReference<>();
+
+        beerRepository.findById(id).ifPresentOrElse(foundBeer -> {
+            foundBeer.setBeerName(beer.getBeerName());
+            foundBeer.setBeerStyle(beer.getBeerStyle());
+            foundBeer.setPrice(beer.getPrice());
+            atomicReference.set(Optional.of(beerMapper
+                    .beerToBeerDto(beerRepository.save(foundBeer))));
+        }, () -> {
+            atomicReference.set(Optional.empty());
+        });
+
+        return atomicReference.get();
+    }
+
+
+    @Override
+    public void deleteById(UUID beerId) {
+
+    }
+
+
+    @Override
+    public void patchBeerById(UUID beerId, BeerDTO beerDTO) {
+
     }
 }
