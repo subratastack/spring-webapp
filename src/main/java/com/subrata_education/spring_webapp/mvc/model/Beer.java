@@ -1,8 +1,10 @@
 package com.subrata_education.spring_webapp.mvc.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.*;
-import org.hibernate.annotations.GenericGenerator;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -21,6 +23,11 @@ public class Beer {
     @Column(length = 36, columnDefinition = "varchar", updatable = false, nullable = false)
     private UUID id;
     private Integer version;
+
+    @NotNull
+    @NotBlank
+    @Size(max=50)
+    @Column(length = 50)
     private String beerName;
     private BeerStyle beerStyle;
     private BigDecimal price;
